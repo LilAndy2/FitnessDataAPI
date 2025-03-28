@@ -39,6 +39,5 @@ rotating_file_handler.setFormatter(formatter)
 # Add handler to logger
 webserver.log.addHandler(rotating_file_handler)
 
-
 # Initialize thread pool for task execution
-webserver.tasks_runner = ThreadPool()
+webserver.tasks_runner = ThreadPool(webserver.log)

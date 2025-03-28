@@ -62,9 +62,13 @@ class ThreadPool:
 
 
 class TaskRunner(Thread):
-    def __init__(self):
-        # TODO: init necessary data structures
-        pass
+    def __init__(self, thread_pool):
+        '''
+            Function to initialize the TaskRunner thread.
+        '''
+        Thread.__init__(self)
+        self.thread_pool = thread_pool
+        self.current_task = None
 
     def run(self):
         while True:
