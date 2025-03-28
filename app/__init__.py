@@ -4,6 +4,12 @@ from app.data_ingestor import DataIngestor
 from app.task_runner import ThreadPool
 import logging
 import logging.handlers
+import time
+
+# Setăm fusul orar global la UTC pentru logging
+class UTCFormatter(logging.Formatter):
+    """ Custom formatter to force UTC timestamps """
+    converter = time.gmtime
 
 # Create 'results' directory if it doesn't exist
 if not os.path.exists('results'):
@@ -24,13 +30,17 @@ webserver.job_counter = 1
 webserver.log = logging.getLogger(__name__)
 webserver.log.setLevel(logging.INFO)
 
+# Clear previous logs by opening the file in write mode
+with open("webserver.log", "w"):
+    pass
+
 # Rotating log file: max size 300KB, keeps 5 backup files
 rotating_file_handler = logging.handlers.RotatingFileHandler(
     'webserver.log', maxBytes=300000, backupCount=5
 )
 
 # Log format includes timestamp, module name, log level, and message
-formatter = logging.Formatter(
+formatter = UTCFormatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S %Z'
 )
