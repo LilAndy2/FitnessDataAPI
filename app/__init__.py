@@ -8,7 +8,9 @@ import time
 
 # Setăm fusul orar global la UTC pentru logging
 class UTCFormatter(logging.Formatter):
-    """ Custom formatter to force UTC timestamps """
+    '''
+        Custom formatter to force UTC timestamps
+    '''
     converter = time.gmtime
 
 # Create 'results' directory if it doesn't exist
