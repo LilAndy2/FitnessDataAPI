@@ -53,3 +53,5 @@ webserver.log.addHandler(rotating_file_handler)
 
 # Initialize thread pool for task execution
 webserver.tasks_runner = ThreadPool(webserver.log)
+
+from app import routes

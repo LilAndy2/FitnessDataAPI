@@ -174,8 +174,8 @@ class TaskProcessor:
             Calculates the difference between the global mean and the mean of 'Data_Value' 
             for each state for the specified question
         '''
-        global_mean = self.global_mean(task)['global_mean']
-        state_means = self.states_mean(task)
+        global_mean = self.global_mean(task).get('global_mean')
+        state_means = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
         return {state: global_mean - value for state, value in state_means.items()}
 
     def state_diff_from_mean(self, task):
@@ -183,9 +183,9 @@ class TaskProcessor:
             Calculates the difference between the global mean and the mean of 'Data_Value'
             for the specified state and question
         '''
-        global_mean = self.global_mean(task)['global_mean']
-        state_mean = self.state_mean(task)[task['state']]
-        return {task['state']: global_mean - state_mean}
+        global_mean = self.global_mean(task).get('global_mean')
+        state_data = self.data[(self.data['LocationDesc'] == task['state']) & (self.data['Question'] == task['question'])]['Data_Value'].mean()
+        return {task['state']: global_mean - state_data}
 
     def mean_by_category(self, task):            
         '''
@@ -194,7 +194,7 @@ class TaskProcessor:
             Calculates the mean of 'Data_Value' for each group
         '''
         filtered_data = self.data[self.data['Question'] == task['question']]
-        mean_values = filtered_data.groupby(('Category')['LocationDesc', 'StratificationCategory1', 'Stratification1'])['Data_Value'].mean()
+        mean_values = filtered_data.groupby(['LocationDesc', 'StratificationCategory1', 'Stratification1'])['Data_Value'].mean()
         return {str(state): value for state, value in mean_values.to_dict().items()}
         
     def state_mean_by_category(self, task):
