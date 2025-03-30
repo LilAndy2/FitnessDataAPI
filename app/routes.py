@@ -1,11 +1,9 @@
 '''
     This file contains the routes for the webserver.
 '''
-from app import webserver
-from flask import request, jsonify
-
-import os
 import json
+from flask import request, jsonify
+from app import webserver
 
 # Example endpoint definition
 @webserver.route('/api/post_endpoint', methods=['POST'])
@@ -102,130 +100,150 @@ def state_mean_request():
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
-    
+    '''
+        Function that handles the request for the best5 endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for best5.")
+    webserver.logger.info("Received request for best5.")
     return_value = add_task(data, 3)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
+    '''
+        Function that handles the request for the worst5 endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for worst5.")
+    webserver.logger.info("Received request for worst5.")
     return_value = add_task(data, 4)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
+    '''
+        Function that handles the request for the global_mean endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for global_mean.")
+    webserver.logger.info("Received request for global_mean.")
     return_value = add_task(data, 5)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/diff_from_mean', methods=['POST'])
 def diff_from_mean_request():
+    '''
+        Function that handles the request for the diff_from_mean endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for diff_from_mean.")
+    webserver.logger.info("Received request for diff_from_mean.")
     return_value = add_task(data, 6)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/state_diff_from_mean', methods=['POST'])
 def state_diff_from_mean_request():
+    '''
+        Function that handles the request for the state_diff_from_mean endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for state_diff_from_mean.")
+    webserver.logger.info("Received request for state_diff_from_mean.")
     return_value = add_task(data, 7)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
+    '''
+        Function that handles the request for the mean_by_category endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for mean_by_category.")
+    webserver.logger.info("Received request for mean_by_category.")
     return_value = add_task(data, 8)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
+    '''
+        Function that handles the request for the state_mean_by_category endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for state_mean_by_category.")
+    webserver.logger.info("Received request for state_mean_by_category.")
     return_value = add_task(data, 9)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/graceful_shutdown', methods=['GET'])
 def graceful_shutdown():
@@ -246,11 +264,13 @@ def get_jobs():
     '''
     webserver.logger.info("jobs request called")
     jobs = []
+
     for job_id in range(1, webserver.job_counter):
         if job_id in webserver.tasks_runner.job_status:
             jobs.append({job_id: "done"})
         else:
             jobs.append({job_id: "running"})
+
     return jsonify({
         "status": "done", 
         "data": jobs
@@ -271,39 +291,51 @@ def get_num_jobs():
 @webserver.route('/')
 @webserver.route('/index')
 def index():
+    '''
+        Function that returns the index page of the webserver.
+    '''
     routes = get_defined_routes()
-    msg = f"Hello, World!\n Interact with the webserver using one of the defined routes:\n"
+    msg = "Hello, World!\n Interact with the webserver using one of the defined routes:\n"
 
     # Display each route as a separate HTML <p> tag
     paragraphs = ""
     for route in routes:
-        paragraphs += f"<p>{route}</p>"
+        paragraphs += "<p>%s</p>", route
 
     msg += paragraphs
     return msg
 
 def get_defined_routes():
+    '''
+        Function that returns the defined routes of the webserver.
+    '''
     routes = []
     for rule in webserver.url_map.iter_rules():
         methods = ', '.join(rule.methods)
-        routes.append(f"Endpoint: \"{rule}\" Methods: \"{methods}\"")
+        routes.append("Endpoint: \"%s\" Methods: \"%s\"", rule, methods)
     return routes
 
 def add_task(data, job_type):
-    webserver.log.info(f"Adding task {data} of type {job_type}")
+    '''
+        Function that adds a task to the queue.
+    '''
+    webserver.log.info("Adding task %s of type %s", data, job_type)
     data['job_id'] = webserver.job_counter
     data['job_type'] = job_type
     result = webserver.tasks_runner.add_task(data)
 
     if result != -1:
-        webserver.log.info(f"Task {data['job_id']} added to the queue.")
+        webserver.log.info("Task %s added to the queue.", data['job_id'])
         webserver.job_counter += 1
         return result
-    else:
-        webserver.log.warning("Task was not registered.")
-        return -1
+
+    webserver.log.warning("Task was not registered.")
+    return -1
 
 def get_result(job_id):
+    '''
+        Function that gets the result of a task.
+    '''
     with open(f"results/result-{job_id}.json", "r", encoding="utf-8") as f:
         result = json.load(f)
     return result

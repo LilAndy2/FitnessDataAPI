@@ -1,12 +1,15 @@
+'''
+    Module that initializes the Flask application and sets up the logging configuration.
+'''
 import os
-from flask import Flask
-from app.data_ingestor import DataIngestor
-from app.task_runner import ThreadPool
 import logging
 import logging.handlers
 import time
+from flask import Flask
+from app.data_ingestor import DataIngestor
+from app.task_runner import ThreadPool
 
-# Setăm fusul orar global la UTC pentru logging
+# Set time zone to UTC
 class UTCFormatter(logging.Formatter):
     '''
         Custom formatter to force UTC timestamps
@@ -33,7 +36,7 @@ webserver.log = logging.getLogger(__name__)
 webserver.log.setLevel(logging.INFO)
 
 # Clear previous logs by opening the file in write mode
-with open("webserver.log", "w"):
+with open("webserver.log", "w", encoding="utf-8") as f:
     pass
 
 # Rotating log file: max size 300KB, keeps 5 backup files

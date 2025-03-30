@@ -1,10 +1,17 @@
+'''
+    This module implements a thread pool to process tasks concurrently.
+'''
 from queue import Queue
 from threading import Thread, Event
 import os
-from app.data_ingestor import DataIngestor
 import json
+import queue
+from app.data_ingestor import DataIngestor
 
 class ThreadPool:
+    '''
+        Class that implements a thread pool to process tasks concurrently.
+    '''
     def __init__(self, logger=None):
         '''
             Function to initialize the Thread Pool with the number of threads
@@ -46,7 +53,7 @@ class ThreadPool:
             for thread in self.workers:
                 thread.join(timeout=10)
                 self.logger.info(f"Thread {thread.ident} joined.")
-    
+
     def add_task(self, task):
         '''
             Function to add a task to the queue.
@@ -57,12 +64,13 @@ class ThreadPool:
             self.logger.info(f"Task {task['job_id']} added to the queue.")
             return task['job_id']
         # If the thread pool has been shut down, log a warning
-        else:
-            self.logger.warning("Thread Pool has been shut down, tasks can no longer be added.")
-            return -1
-
+        self.logger.warning("Thread Pool has been shut down, tasks can no longer be added.")
+        return -1
 
 class TaskRunner(Thread):
+    '''
+        Class that implements the Task Runner, which processes tasks from the queue.
+    '''
     def __init__(self, thread_pool):
         '''
             Function to initialize the TaskRunner thread.
@@ -79,7 +87,7 @@ class TaskRunner(Thread):
             try:
                 task = self.thread_pool.tasks.get(timeout=1)
                 self.process_task(task)
-            except:
+            except queue.Empty:
                 continue
 
     def process_task(self, task):
@@ -94,11 +102,17 @@ class TaskRunner(Thread):
         self.thread_pool.job_status[task['job_id']] = 'completed'
 
     def write_result(self, job_id, result):
+        '''
+            Function that writes the result of a task to a JSON file.
+        '''
         os.makedirs('./results', exist_ok=True)
         with open(f"./results/result-{job_id}.json", 'w', encoding='utf-8') as f:
             json.dump(result, f, ensure_ascii=False, indent=4)
 
 class TaskProcessor:
+    '''
+        Class that processes the tasks based on the job type.
+    '''
     def __init__(self, data_ingestor):
         '''
             Function to initialize the TaskProcessor with the data ingestor
@@ -113,21 +127,21 @@ class TaskProcessor:
         job_type = task['job_type']
         if job_type == 1:
             return self.states_mean(task)
-        elif job_type == 2:
+        if job_type == 2:
             return self.state_mean(task)
-        elif job_type == 3:
+        if job_type == 3:
             return self.best5(task)
-        elif job_type == 4:
+        if job_type == 4:
             return self.worst5(task)
-        elif job_type == 5:
+        if job_type == 5:
             return self.global_mean(task)
-        elif job_type == 6:
+        if job_type == 6:
             return self.diff_from_mean(task)
-        elif job_type == 7:
+        if job_type == 7:
             return self.state_diff_from_mean(task)
-        elif job_type == 8:
+        if job_type == 8:
             return self.mean_by_category(task)
-        elif job_type == 9:
+        if job_type == 9:
             return self.state_mean_by_category(task)
         return {"error": "Invalid job type"}
 
@@ -136,16 +150,18 @@ class TaskProcessor:
             Groups the data by 'LocationDesc' and calculates the mean of 'Data_Value' for each group
             'LocationDesc' is the state name, therefore the result is the mean value for each state
         '''
-        result = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
+        result = self.data[self.data['Question'] == task['question']].groupby(
+            'LocationDesc')['Data_Value'].mean().to_dict()
         return dict(sorted(result.items(), key=lambda item: item[1]))
-        
+
     def state_mean(self, task):
         '''
-            Filters the data for the specified state & question and calculates the mean of 'Data_Value'
+            Filters the data for the state & question and calculates the mean of 'Data_Value'
         '''
-        result = self.data[(self.data['LocationDesc'] == task['state']) & (self.data['Question'] == task['question'])]['Data_Value'].mean()
+        result = self.data[(self.data['LocationDesc'] == task['state']) &
+                           (self.data['Question'] == task['question'])]['Data_Value'].mean()
         return {task['state']: result}
-    
+
     def best5(self, task):
         '''
             Calculates the mean of 'Data_Value' for each state for the specified question
@@ -153,10 +169,12 @@ class TaskProcessor:
             Returns the top 5 states
         '''
         best_is_min = task['question'] in self.questions_best_is_min
-        result = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
-        sorted_result = dict(sorted(result.items(), key=lambda item: item[1], reverse=not best_is_min))
+        result = self.data[self.data['Question'] == task['question']].groupby(
+            'LocationDesc')['Data_Value'].mean().to_dict()
+        sorted_result = dict(
+            sorted(result.items(), key=lambda item: item[1], reverse=not best_is_min))
         return dict(list(sorted_result.items())[:5])
-    
+
     def worst5(self, task):
         '''
             Calculates the mean of 'Data_Value' for each state for the specified question
@@ -164,23 +182,27 @@ class TaskProcessor:
             Returns the last 5 states
         '''
         best_is_min = task['question'] in self.questions_best_is_min
-        result = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
-        sorted_result = dict(sorted(result.items(), key=lambda item: item[1], reverse=not best_is_min))
+        result = self.data[self.data['Question'] == task['question']].groupby(
+            'LocationDesc')['Data_Value'].mean().to_dict()
+        sorted_result = dict(
+            sorted(result.items(), key=lambda item: item[1], reverse=not best_is_min))
         return dict(list(sorted_result.items())[-5:])
-        
+
     def global_mean(self, task):
         '''
             Calculates the mean of 'Data_Value' for the specified question
         '''
-        return {'global_mean': self.data[self.data['Question'] == task['question']]['Data_Value'].mean()}
-        
+        return {'global_mean':
+                self.data[self.data['Question'] == task['question']]['Data_Value'].mean()}
+
     def diff_from_mean(self, task):
         '''
             Calculates the difference between the global mean and the mean of 'Data_Value' 
             for each state for the specified question
         '''
         global_mean = self.global_mean(task).get('global_mean')
-        state_means = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
+        state_means = self.data[self.data['Question'] == task['question']].groupby(
+            'LocationDesc')['Data_Value'].mean().to_dict()
         return {state: global_mean - value for state, value in state_means.items()}
 
     def state_diff_from_mean(self, task):
@@ -189,24 +211,29 @@ class TaskProcessor:
             for the specified state and question
         '''
         global_mean = self.global_mean(task).get('global_mean')
-        state_data = self.data[(self.data['LocationDesc'] == task['state']) & (self.data['Question'] == task['question'])]['Data_Value'].mean()
+        state_data = self.data[(self.data['LocationDesc'] == task['state']) &
+                               (self.data['Question'] == task['question'])]['Data_Value'].mean()
         return {task['state']: global_mean - state_data}
 
-    def mean_by_category(self, task):            
+    def mean_by_category(self, task):
         '''
             Groups the data by 'LocationDesc', 'StratificationCategory1' and 'Stratification1'
-            (group by state, and by the stratification categories, stratifications within that state)
+            (group by state and by the stratification categories, stratifications within that state)
             Calculates the mean of 'Data_Value' for each group
         '''
         filtered_data = self.data[self.data['Question'] == task['question']]
-        mean_values = filtered_data.groupby(['LocationDesc', 'StratificationCategory1', 'Stratification1'])['Data_Value'].mean()
+        mean_values = filtered_data.groupby(
+            ['LocationDesc', 'StratificationCategory1', 'Stratification1'])['Data_Value'].mean()
         return {str(state): value for state, value in mean_values.to_dict().items()}
-        
+
     def state_mean_by_category(self, task):
         '''
             Groups the data by 'StratificationCategory1' and 'Stratification1' and
             calculates the mean of 'Data_Value' for the specified state and question
         '''
-        filtered_data = self.data[(self.data['LocationDesc'] == task['state']) & (self.data['Question'] == task['question'])]
-        mean_values = filtered_data.groupby(['StratificationCategory1', 'Stratification1'])['Data_Value'].mean()
-        return {task['state']: {str(state): value for state, value in mean_values.to_dict().items()}}
+        filtered_data = self.data[(self.data['LocationDesc'] == task['state']) &
+                                  (self.data['Question'] == task['question'])]
+        mean_values = filtered_data.groupby(
+            ['StratificationCategory1', 'Stratification1'])['Data_Value'].mean()
+        return {task['state']:
+                {str(state): value for state, value in mean_values.to_dict().items()}}
