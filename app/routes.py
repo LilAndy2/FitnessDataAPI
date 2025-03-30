@@ -1,3 +1,6 @@
+'''
+    This file contains the routes for the webserver.
+'''
 from app import webserver
 from flask import request, jsonify
 
@@ -7,6 +10,9 @@ import json
 # Example endpoint definition
 @webserver.route('/api/post_endpoint', methods=['POST'])
 def post_endpoint():
+    '''
+        Example POST endpoint that receives data and processes it.
+    '''
     if request.method == 'POST':
         # Assuming the request contains JSON data
         data = request.json
@@ -18,76 +24,85 @@ def post_endpoint():
 
         # Sending back a JSON response
         return jsonify(response)
-    else:
-        # Method Not Allowed
-        return jsonify({"error": "Method not allowed"}), 405
+
+    # Method Not Allowed
+    return jsonify({"error": "Method not allowed"}), 405
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
+    '''
+        Function that returns the result of the job with the given job_id
+    '''
     job_id = int(job_id)
-    webserver.log.info(f"Received request for job_id {job_id}")
+    webserver.log.info("Received request for job_id %s", job_id)
     # Check if the job_id is valid
     if job_id <= webserver.job_counter:
         task = webserver.tasks_runner.job_status.get(job_id, None)
         # Check if the task is still running
         if task is not None:
             result = get_result(job_id)
-            webserver.log.info(f"Task {job_id} is done.")
+            webserver.log.info("Task %s is done.", job_id)
             return jsonify({
                 "status": "done",
                 "data": result
             }), 200
-        else:
-            webserver.log.info(f"Task {job_id} is still running.")
-            return jsonify({
-                "status": "running"
-            }), 200
-    else:
-        webserver.log.error(f"Invalid job_id {job_id}.")
+
+        webserver.log.info("Task %s is still running.", job_id)
         return jsonify({
-            "status": "error",
-            "reason": "Invalid job_id"
-        }), 405
+            "status": "running"
+        }), 200
+
+    webserver.log.error("Invalid job_id %s.", job_id)
+    return jsonify({
+        "status": "error",
+        "reason": "Invalid job_id"
+    }), 405
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
+    '''
+        Function that handles the request for the states_mean endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for states_mean.")
+    webserver.logger.info("Received request for states_mean.")
     return_value = add_task(data, 1)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
+
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
+    '''
+        Function that handles the request for the state_mean endpoint.
+    '''
     # Get request data
     data = request.json
 
-    webserver.logger.info(f"Received request for state_mean.")
+    webserver.logger.info("Received request for state_mean.")
     return_value = add_task(data, 2)
     if return_value != -1:
         return jsonify({
             "status": "done",
             "job_id": return_value
         }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "reason": "Thread Pool is shutting down, no more tasks can be added."
-        }), 405
 
+    return jsonify({
+        "status": "error",
+        "reason": "Thread Pool is shutting down, no more tasks can be added."
+    }), 405
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
+    
     # Get request data
     data = request.json
 
@@ -211,7 +226,7 @@ def state_mean_by_category_request():
             "status": "error",
             "reason": "Thread Pool is shutting down, no more tasks can be added."
         }), 405
-    
+
 @webserver.route('/api/graceful_shutdown', methods=['GET'])
 def graceful_shutdown():
     '''
@@ -219,7 +234,7 @@ def graceful_shutdown():
         The Thread Pool will finish all the tasks in the queue before shutting down.
     '''
     webserver.logger.info("graceful_shutdown request called")
-    webserver.tasks_runner.call_shutdown()
+    webserver.tasks_runner.shutdown()
     return jsonify({
         "status": "done"
     }), 200

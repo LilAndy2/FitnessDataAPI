@@ -103,7 +103,7 @@ class TaskProcessor:
         '''
             Function to initialize the TaskProcessor with the data ingestor
         '''
-        self.data = data_ingestor.get_data()
+        self.data = data_ingestor.data
         self.questions_best_is_min = data_ingestor.questions_best_is_min
 
     def compute_result(self, task):
@@ -116,9 +116,9 @@ class TaskProcessor:
         elif job_type == 2:
             return self.state_mean(task)
         elif job_type == 3:
-            return self.best5_or_worst5(task, top=True)
+            return self.best5(task)
         elif job_type == 4:
-            return self.best5_or_worst5(task, top=False)
+            return self.worst5(task)
         elif job_type == 5:
             return self.global_mean(task)
         elif job_type == 6:
@@ -136,7 +136,7 @@ class TaskProcessor:
             Groups the data by 'LocationDesc' and calculates the mean of 'Data_Value' for each group
             'LocationDesc' is the state name, therefore the result is the mean value for each state
         '''
-        result = self.data[self.data['Question'] == task['question']].groupby('LocationsDesc')['Data_Value'].mean().to_dict()
+        result = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
         return dict(sorted(result.items(), key=lambda item: item[1]))
         
     def state_mean(self, task):
@@ -145,23 +145,28 @@ class TaskProcessor:
         '''
         result = self.data[(self.data['LocationDesc'] == task['state']) & (self.data['Question'] == task['question'])]['Data_Value'].mean()
         return {task['state']: result}
-        
-    def best5_or_worst5(self, task, top=True):
+    
+    def best5(self, task):
         '''
-            best5:
             Calculates the mean of 'Data_Value' for each state for the specified question
             Sorts the results based on whether a lower value is better or not
             Returns the top 5 states
-
-            worst5:
-            Calculates the mean of 'Data_Value' for each state for the specified question
-            Sorts the results based on whether a lower value is better or not
-            Returns the last 5 states 
         '''
         best_is_min = task['question'] in self.questions_best_is_min
         result = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
-        sorted_result = result.sort_values(ascending=best_is_min)
-        return sorted_result.head(5).to_dict() if top else sorted_result.tail(5).to_dict()
+        sorted_result = dict(sorted(result.items(), key=lambda item: item[1], reverse=not best_is_min))
+        return dict(list(sorted_result.items())[:5])
+    
+    def worst5(self, task):
+        '''
+            Calculates the mean of 'Data_Value' for each state for the specified question
+            Sorts the results based on whether a lower value is better or not
+            Returns the last 5 states
+        '''
+        best_is_min = task['question'] in self.questions_best_is_min
+        result = self.data[self.data['Question'] == task['question']].groupby('LocationDesc')['Data_Value'].mean().to_dict()
+        sorted_result = dict(sorted(result.items(), key=lambda item: item[1], reverse=not best_is_min))
+        return dict(list(sorted_result.items())[-5:])
         
     def global_mean(self, task):
         '''
