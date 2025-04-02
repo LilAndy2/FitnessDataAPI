@@ -80,7 +80,7 @@ class TestWebserver(unittest.TestCase):
         # Wait for the server to shut down
         time.sleep(5)
 
-        # Check if the server is down
+        # Check if the server is down by making another request
         res = requests.post(
             self.base_url + 'states_mean', 
             json={"question": "What is the mean of the states?"},
@@ -105,6 +105,7 @@ class TestWebserver(unittest.TestCase):
         '''
             Function that runs the test case for the given test number.
         '''
+        # Load test data from JSON file
         with open(f'unittests/in/in-{test_number}.json', 'r', encoding='utf-8') as f:
             test_data = json.load(f)
 
@@ -114,6 +115,7 @@ class TestWebserver(unittest.TestCase):
         if "state" in test_data:
             payload["state"] = test_data["state"]
 
+        # Send a POST request to the endpoint with the payload
         res = requests.post(endpoint, json=payload, timeout=5)
         job_id = res.json().get("job_id", None)
 
@@ -137,6 +139,7 @@ class TestWebserver(unittest.TestCase):
             else:
                 self.fail("Error")
 
+        # Verify the response data against the expected output
         res_data = res_data["data"]
 
         with open(f'unittests/out/out-{test_number}.json', 'r', encoding='utf-8') as f:
