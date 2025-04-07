@@ -1,0 +1,59 @@
+commit 1ca9e50676ef4bb6f77ce2fa21aa75d5f23e4bab
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Wed Apr 2 16:14:51 2025 +0300
+
+    add readme file
+
+commit 455d3ceb3c1e251946b6b3743514806cb0893bd5
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Wed Apr 2 14:17:40 2025 +0300
+
+    implemented unittests
+
+commit ce1c34f42c9ca158d4f5f31efe56b6cc05bb6dfc
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Mon Mar 31 01:43:27 2025 +0300
+
+    pylint is at 9.89 / 10 i think its good enough
+
+commit d22aa49f31d5f9e84ae5868ac04a1f84b51d505b
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Mon Mar 31 00:58:09 2025 +0300
+
+    all api calls work properly, time to work on the coding style
+
+commit f587e04eb8a3edf727391f2e27b37c2bcaa1ef19
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Sun Mar 30 23:23:01 2025 +0300
+
+    implemented routes logic, some tests pass, most of them fail due to timeouts, working on fixing that
+
+commit 164dabdb0e38bc688d045452c14b427f94f403d2
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Sun Mar 30 20:23:56 2025 +0300
+
+    implemented the functionality for the api calls
+
+commit 23e25d2e80d200f96db7a89fb362f7dccf77f2d3
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Fri Mar 28 17:53:31 2025 +0200
+
+    fixed the log timestamp to be in GMT format and also overwrite the past logs
+
+commit a00dfb4fc1f8fcc97e42ad66b738d7cb24e93cee
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Fri Mar 28 17:40:23 2025 +0200
+
+    added basic logic for TaskRunner, logging now works
+
+commit 8d66415efbf0aa25438eaafcb927e16e6c870c1e
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Fri Mar 28 17:29:39 2025 +0200
+
+    added logging logic and basic implementation for the thread pool. added comments for clarity
+
+commit d27555b7abaa236cfd6400415664f36eddccb147
+Author: LilAndy2 <iulian.andrei.manea@gmail.com>
+Date:   Tue Mar 25 16:22:11 2025 +0200
+
+    initial commit
